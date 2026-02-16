@@ -1,6 +1,8 @@
 extends Control
 
 @onready var skald_engine: SkaldEngine = $SkaldEngine
+@onready var prompt_label: Label = %PromptLabel
+@onready var prompt_input: ValueInputField = %PromptInput
 @onready var log_text: RichTextLabel = %LogText
 @onready var state_list: VBoxContainer = %StateList
 @onready var continue_label: Label = %ContinueLabel
@@ -33,9 +35,9 @@ const SPEAKER_COLORS = [
 
 var _speaker_color_map: Dictionary = {}
 var _next_color_idx: int = 0
-var _response_input: ValueInputField
 var _file_loaded: bool = false
 var _expected_response: ExpectedResponse = ExpectedResponse.CONTINUE
+var _current_options: Array = []
 
 # SECTION: SKALD ENGINE INTEGRATION
 
@@ -46,19 +48,39 @@ func start_module(path: String) -> void:
 	var response = skald_engine.start()
 	handle_response(response)
 
+func query_to_string(q: SkaldQuery) -> String:
+	var ret = "QUERY: " if q.expects_response else "CALL: "
+	ret += q.method
+	for arg in q.args:
+		ret += " (" + arg + ")"
+	return ret
+
 func handle_response(response: Variant):
+
+	# Handle flat method calls
+	# Note: The reason we still answer a normal method call like this is that we can optionally make
+	# it blocking. For instance we could e.g. handle a :play_animation method and not continue the text
+	# until the animation finishes playing.
+	while response is SkaldQuery && !(response as SkaldQuery).expects_response:
+		# This is how you answer a method call that does not expect a response:
+		add_system_log(query_to_string(response))
+		response = skald_engine.answer(null)
+
 	if response is SkaldContent:
 		var content := response as SkaldContent
 		if content.attribution != "":
 			add_attributed_log(content.attribution, content.text)
 		else:
 			add_narrative_log(content.text)
-		show_continue()
+		if content.options.size() > 0:
+			_current_options = content.options
+			show_choices(content.options)
+		else:
+			show_continue()
 		pass
 	elif response is SkaldQuery:
 		var query := response as SkaldQuery
-		var prompt_string := "Method call: " + query.method
-		# TODO: Add args here
+		var prompt_string := query_to_string(query)
 		add_system_log(prompt_string)
 		show_input(prompt_string)
 		pass
@@ -82,6 +104,10 @@ func handle_response(response: Variant):
 		show_continue()
 		pass
 
+func handle_answer(val: Variant):
+	add_system_log("ANSWERED: " + val)
+	handle_response(skald_engine.answer(val))
+
 # SECTION: UI AND INFRASTRUCTURE
 
 func _on_file_loaded(path: String) -> void:
@@ -97,10 +123,14 @@ func _process(_delta: float) -> void:
 			if Input.is_action_just_pressed("continue"):
 				var response = skald_engine.act(0)
 				handle_response(response)
+		ExpectedResponse.CHOICE:
+			for i in range(9):
+				if Input.is_action_just_pressed("pick_%d" % [i + 1]):
+					if i < _current_options.size() and (_current_options[i] as SkaldOption).is_available:
+						_on_choice_pressed(i)
+					break
 
 func _ready() -> void:
-	_response_input = VALUE_INPUT_SCENE.instantiate()
-	input_container.add_child(_response_input)
 
 	# Menu setup
 	file_menu.add_item("Load...", 0)
@@ -166,9 +196,24 @@ func show_choices(options: Array) -> void:
 		child.queue_free()
 	set_expected_response(ExpectedResponse.CHOICE)
 	for i in options.size():
-		var label := Label.new()
-		label.text = "%d. %s" % [i + 1, options[i]]
-		choices_container.add_child(label)
+		var opt := options[i] as SkaldOption
+		if opt.is_available:
+			var button := Button.new()
+			button.text = "%d. %s" % [i + 1, opt.text]
+			button.pressed.connect(_on_choice_pressed.bind(i))
+			choices_container.add_child(button)
+		else:
+			var label := RichTextLabel.new()
+			label.fit_content = true
+			label.bbcode_enabled = true
+			label.scroll_active = false
+			label.text = "[center][s][color=#888888]%d. %s[/color][/s][/center]" % [i + 1, opt.text]
+			choices_container.add_child(label)
+
+
+func _on_choice_pressed(index: int) -> void:
+	var response = skald_engine.act(index)
+	handle_response(response)
 
 
 func show_input(prompt: String) -> void:
@@ -229,3 +274,11 @@ func _add_placeholder_logs() -> void:
 	add_narrative_log("A cool breeze swept through the trees.")
 	add_error_log("Warning: undefined variable 'x'")
 	add_system_log("State saved.")
+
+
+func _on_prompt_button_pressed() -> void:
+	var val = prompt_input.get_value()
+	handle_answer(val)
+
+func _on_prompt_input_value_submitted(value: Variant) -> void:
+	handle_answer(value)

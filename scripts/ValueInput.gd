@@ -18,7 +18,7 @@ func _ready() -> void:
 	type_select.add_item("Float", ValueType.FLOAT)
 	type_select.add_item("Boolean", ValueType.BOOLEAN)
 	type_select.add_item("String", ValueType.STRING)
-	type_select.selected = 4
+	type_select.selected = current_type
 	type_select.item_selected.connect(_on_type_changed)
 	text_input.text_submitted.connect(_on_text_submitted)
 	bool_toggle.toggled.connect(_on_bool_toggled)
@@ -26,7 +26,7 @@ func _ready() -> void:
 
 
 func _on_type_changed(index: int) -> void:
-	current_type = type_select.get_item_id(index)
+	current_type = type_select.get_item_id(index) as ValueType
 	_update_input_visibility()
 
 
@@ -56,6 +56,9 @@ func get_value() -> Variant:
 			return text_input.text
 	return null
 
+func reset() -> void:
+	set_value(null)
+
 
 func set_value(value: Variant) -> void:
 	if value == null:
@@ -76,7 +79,7 @@ func set_value(value: Variant) -> void:
 
 
 func _select_type(type: int) -> void:
-	current_type = type
+	current_type = type as ValueType
 	for i in type_select.item_count:
 		if type_select.get_item_id(i) == type:
 			type_select.selected = i

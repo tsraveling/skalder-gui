@@ -136,10 +136,12 @@ unique_name_in_owner = true
 layout_mode = 2
 
 [node name="PromptLabel" type="Label" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent/InputContainer" unique_id=2036087057]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Method input"
 
 [node name="PromptInput" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent/InputContainer" unique_id=1337491765 instance=ExtResource("2_uu6xs")]
+unique_name_in_owner = true
 layout_mode = 2
 
 [node name="PromptButton" type="Button" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent/InputContainer" unique_id=1522770722]
@@ -176,3 +178,6 @@ size = Vector2i(800, 500)
 file_mode = 0
 access = 2
 filters = PackedStringArray("*.ska ; Skald Files")
+
+[connection signal="value_submitted" from="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent/InputContainer/PromptInput" to="." method="_on_prompt_input_value_submitted"]
+[connection signal="pressed" from="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent/InputContainer/PromptButton" to="." method="_on_prompt_button_pressed"]
