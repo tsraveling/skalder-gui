@@ -34,7 +34,7 @@ script = ExtResource("1_main")
 
 [node name="SkaldEngine" type="SkaldEngine" parent="."]
 
-[node name="Layout" type="HBoxContainer" parent="."]
+[node name="RootLayout" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -42,98 +42,123 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TOCPanel" type="PanelContainer" parent="Layout"]
+[node name="MenuBar" type="MenuBar" parent="RootLayout"]
+layout_mode = 2
+
+[node name="File" type="PopupMenu" parent="RootLayout/MenuBar"]
+
+[node name="Layout" type="HBoxContainer" parent="RootLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TOCPanel" type="PanelContainer" parent="RootLayout/Layout"]
 layout_mode = 2
 custom_minimum_size = Vector2(150, 0)
 theme_override_styles/panel = SubResource("StyleBoxFlat_side")
 
-[node name="TOCList" type="VBoxContainer" parent="Layout/TOCPanel"]
+[node name="TOCList" type="VBoxContainer" parent="RootLayout/Layout/TOCPanel"]
 layout_mode = 2
 
-[node name="TOCTitle" type="Label" parent="Layout/TOCPanel/TOCList"]
+[node name="TOCTitle" type="Label" parent="RootLayout/Layout/TOCPanel/TOCList"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
 text = "Blocks"
 
-[node name="HSeparator" type="HSeparator" parent="Layout/TOCPanel/TOCList"]
+[node name="HSeparator" type="HSeparator" parent="RootLayout/Layout/TOCPanel/TOCList"]
 layout_mode = 2
 
-[node name="AliceBtn" type="Button" parent="Layout/TOCPanel/TOCList"]
+[node name="AliceBtn" type="Button" parent="RootLayout/Layout/TOCPanel/TOCList"]
 layout_mode = 2
 flat = true
 text = "alice"
 alignment = 0
 
-[node name="BobBtn" type="Button" parent="Layout/TOCPanel/TOCList"]
+[node name="BobBtn" type="Button" parent="RootLayout/Layout/TOCPanel/TOCList"]
 layout_mode = 2
 flat = true
 text = "bob"
 alignment = 0
 
-[node name="CharlieBtn" type="Button" parent="Layout/TOCPanel/TOCList"]
+[node name="CharlieBtn" type="Button" parent="RootLayout/Layout/TOCPanel/TOCList"]
 layout_mode = 2
 flat = true
 text = "charlie"
 alignment = 0
 
-[node name="ContentColumn" type="VBoxContainer" parent="Layout"]
+[node name="ContentColumn" type="VBoxContainer" parent="RootLayout/Layout"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LogPanel" type="PanelContainer" parent="Layout/ContentColumn"]
+[node name="LogPanel" type="PanelContainer" parent="RootLayout/Layout/ContentColumn"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_center")
 
-[node name="LogText" type="RichTextLabel" parent="Layout/ContentColumn/LogPanel"]
+[node name="LogText" type="RichTextLabel" parent="RootLayout/Layout/ContentColumn/LogPanel"]
 unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true
 scroll_following = true
 selection_enabled = true
 
-[node name="ResponsePanel" type="PanelContainer" parent="Layout/ContentColumn"]
+[node name="ResponsePanel" type="PanelContainer" parent="RootLayout/Layout/ContentColumn"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_response")
 
-[node name="ResponseContent" type="VBoxContainer" parent="Layout/ContentColumn/ResponsePanel"]
+[node name="ResponseContent" type="VBoxContainer" parent="RootLayout/Layout/ContentColumn/ResponsePanel"]
 layout_mode = 2
 
-[node name="ContinueLabel" type="Label" parent="Layout/ContentColumn/ResponsePanel/ResponseContent"]
+[node name="NoFileLabel" type="Label" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+text = "Please load a Skald file."
+horizontal_alignment = 1
+
+[node name="ContinueLabel" type="Label" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 text = "Press spacebar to continue"
 horizontal_alignment = 1
 
-[node name="ChoicesContainer" type="VBoxContainer" parent="Layout/ContentColumn/ResponsePanel/ResponseContent"]
+[node name="ChoicesContainer" type="VBoxContainer" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent"]
 unique_name_in_owner = true
 layout_mode = 2
 visible = false
 
-[node name="InputContainer" type="VBoxContainer" parent="Layout/ContentColumn/ResponsePanel/ResponseContent"]
+[node name="InputContainer" type="VBoxContainer" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent"]
 unique_name_in_owner = true
 layout_mode = 2
 visible = false
 
-[node name="StatePanel" type="PanelContainer" parent="Layout"]
+[node name="StatePanel" type="PanelContainer" parent="RootLayout/Layout"]
 layout_mode = 2
 custom_minimum_size = Vector2(300, 0)
 theme_override_styles/panel = SubResource("StyleBoxFlat_side")
 
-[node name="StateScroll" type="ScrollContainer" parent="Layout/StatePanel"]
+[node name="StateScroll" type="ScrollContainer" parent="RootLayout/Layout/StatePanel"]
 layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="StateList" type="VBoxContainer" parent="Layout/StatePanel/StateScroll"]
+[node name="StateList" type="VBoxContainer" parent="RootLayout/Layout/StatePanel/StateScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="StateTitle" type="Label" parent="Layout/StatePanel/StateScroll/StateList"]
+[node name="StateTitle" type="Label" parent="RootLayout/Layout/StatePanel/StateScroll/StateList"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
 text = "State"
 
-[node name="HSeparator" type="HSeparator" parent="Layout/StatePanel/StateScroll/StateList"]
+[node name="HSeparator" type="HSeparator" parent="RootLayout/Layout/StatePanel/StateScroll/StateList"]
 layout_mode = 2
+
+[node name="FileDialog" type="FileDialog" parent="."]
+title = "Open Skald File"
+initial_position = 1
+size = Vector2i(800, 500)
+access = 2
+file_mode = 0
+filters = PackedStringArray("*.ska ; Skald Files")

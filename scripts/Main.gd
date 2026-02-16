@@ -6,6 +6,9 @@ extends Control
 @onready var continue_label: Label = %ContinueLabel
 @onready var choices_container: VBoxContainer = %ChoicesContainer
 @onready var input_container: VBoxContainer = %InputContainer
+@onready var no_file_label: Label = %NoFileLabel
+@onready var file_dialog: FileDialog = $FileDialog
+@onready var file_menu: PopupMenu = $RootLayout/MenuBar/File
 
 const VALUE_INPUT_SCENE = preload("res://scenes/ValueInput.tscn")
 
@@ -22,14 +25,50 @@ const SPEAKER_COLORS = [
 var _speaker_color_map: Dictionary = {}
 var _next_color_idx: int = 0
 var _response_input: ValueInputField
+var _file_loaded: bool = false
+
+# SECTION: SKALD ENGINE INTEGRATION
+
+# TODO: Put Skald here!
+
+func start_module(path: String) -> void:
+	skald_engine.load(path)
+
+# SECTION: UI AND INFRASTRUCTURE
+
+func _on_file_loaded(path: String) -> void:
+	_file_loaded = true
+	no_file_label.visible = false
+	log_text.clear()
+	add_system_log("Loaded: " + path)
+	show_continue()
 
 
 func _ready() -> void:
 	_response_input = VALUE_INPUT_SCENE.instantiate()
 	input_container.add_child(_response_input)
+
+	# Menu setup
+	file_menu.add_item("Load...", 0)
+	file_menu.add_item("Exit", 1)
+	file_menu.id_pressed.connect(_on_file_menu_pressed)
+	file_dialog.file_selected.connect(_on_file_selected)
+
 	_add_placeholder_state()
 	_add_placeholder_logs()
-	show_continue()
+
+	# Prompt for file on launch
+	file_dialog.popup_centered()
+
+
+func _on_file_menu_pressed(id: int) -> void:
+	match id:
+		0: file_dialog.popup_centered()
+		1: get_tree().quit()
+
+
+func _on_file_selected(path: String) -> void:
+	_on_file_loaded(path)
 
 
 # -- Log view --
@@ -57,12 +96,14 @@ func add_error_log(content: String) -> void:
 # -- Response area --
 
 func show_continue() -> void:
+	no_file_label.visible = false
 	continue_label.visible = true
 	choices_container.visible = false
 	input_container.visible = false
 
 
 func show_choices(options: Array) -> void:
+	no_file_label.visible = false
 	continue_label.visible = false
 	choices_container.visible = true
 	input_container.visible = false
@@ -75,6 +116,7 @@ func show_choices(options: Array) -> void:
 
 
 func show_input() -> void:
+	no_file_label.visible = false
 	continue_label.visible = false
 	choices_container.visible = false
 	input_container.visible = true
