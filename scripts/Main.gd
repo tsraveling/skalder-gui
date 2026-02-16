@@ -10,6 +10,15 @@ extends Control
 @onready var file_dialog: FileDialog = $FileDialog
 @onready var file_menu: PopupMenu = $RootLayout/MenuBar/File
 
+enum ExpectedResponse {
+CONTINUE,
+CHOICE,
+INPUT,
+ERROR,
+DONE,
+NO_FILE
+}
+
 const VALUE_INPUT_SCENE = preload("res://scenes/ValueInput.tscn")
 
 const SPEAKER_COLORS = [
@@ -26,6 +35,7 @@ var _speaker_color_map: Dictionary = {}
 var _next_color_idx: int = 0
 var _response_input: ValueInputField
 var _file_loaded: bool = false
+var _expected_response: ExpectedResponse = ExpectedResponse.CONTINUE
 
 # SECTION: SKALD ENGINE INTEGRATION
 
@@ -33,6 +43,44 @@ var _file_loaded: bool = false
 
 func start_module(path: String) -> void:
 	skald_engine.load(path)
+	var response = skald_engine.start()
+	handle_response(response)
+
+func handle_response(response: Variant):
+	if response is SkaldContent:
+		var content := response as SkaldContent
+		if content.attribution != "":
+			add_attributed_log(content.attribution, content.text)
+		else:
+			add_narrative_log(content.text)
+		show_continue()
+		pass
+	elif response is SkaldQuery:
+		var query := response as SkaldQuery
+		var prompt_string := "Method call: " + query.method
+		# TODO: Add args here
+		add_system_log(prompt_string)
+		show_input(prompt_string)
+		pass
+	elif response is SkaldExit:
+		var exit := response as SkaldExit
+		add_system_log("MODULE EXIT")
+		show_continue()
+		pass
+	elif response is SkaldGoModule:
+		var go_module := response as SkaldGoModule
+		add_system_log("MODULE GO: " + go_module.module_path)
+		show_continue()
+		pass
+	elif response is SkaldError:
+		var error := response as SkaldError
+		add_error_log(error.message)
+		show_continue()
+		pass
+	elif response is SkaldEnd:
+		var end := response as SkaldEnd
+		show_continue()
+		pass
 
 # SECTION: UI AND INFRASTRUCTURE
 
@@ -41,8 +89,14 @@ func _on_file_loaded(path: String) -> void:
 	no_file_label.visible = false
 	log_text.clear()
 	add_system_log("Loaded: " + path)
-	show_continue()
+	start_module(path)
 
+func _process(_delta: float) -> void:
+	match _expected_response:
+		ExpectedResponse.CONTINUE:
+			if Input.is_action_just_pressed("continue"):
+				var response = skald_engine.act(0)
+				handle_response(response)
 
 func _ready() -> void:
 	_response_input = VALUE_INPUT_SCENE.instantiate()
@@ -95,31 +149,31 @@ func add_error_log(content: String) -> void:
 
 # -- Response area --
 
+func set_expected_response(expected: ExpectedResponse):
+	_expected_response = expected
+	no_file_label.visible = expected == ExpectedResponse.NO_FILE
+	continue_label.visible = expected == ExpectedResponse.CONTINUE
+	choices_container.visible = expected == ExpectedResponse.CHOICE
+	input_container.visible = expected == ExpectedResponse.INPUT
+	# TODO: Handle other expected response types.
+
 func show_continue() -> void:
-	no_file_label.visible = false
-	continue_label.visible = true
-	choices_container.visible = false
-	input_container.visible = false
+	set_expected_response(ExpectedResponse.CONTINUE)
 
 
 func show_choices(options: Array) -> void:
-	no_file_label.visible = false
-	continue_label.visible = false
-	choices_container.visible = true
-	input_container.visible = false
 	for child in choices_container.get_children():
 		child.queue_free()
+	set_expected_response(ExpectedResponse.CHOICE)
 	for i in options.size():
 		var label := Label.new()
 		label.text = "%d. %s" % [i + 1, options[i]]
 		choices_container.add_child(label)
 
 
-func show_input() -> void:
-	no_file_label.visible = false
-	continue_label.visible = false
-	choices_container.visible = false
-	input_container.visible = true
+func show_input(prompt: String) -> void:
+	set_expected_response(ExpectedResponse.INPUT)
+
 
 
 # -- State panel --
