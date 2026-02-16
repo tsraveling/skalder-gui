@@ -1,0 +1,183 @@
+[gd_scene format=3 uid="uid://dqvhkqoj7tp8w"]
+
+[ext_resource type="Script" uid="uid://dkwboqgvxvdl0" path="res://scripts/Main.gd" id="1_main"]
+[ext_resource type="PackedScene" uid="uid://cvlinpt3rk7m2" path="res://scenes/ValueInput.tscn" id="2_uu6xs"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_side"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.12, 0.12, 0.18, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_center"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.06, 0.06, 0.1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_response"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0.1, 0.1, 0.15, 1)
+
+[node name="Main" type="Control" unique_id=2125976735]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main")
+
+[node name="SkaldEngine" type="SkaldEngine" parent="." unique_id=1480532880]
+
+[node name="RootLayout" type="VBoxContainer" parent="." unique_id=1887964860]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MenuBar" type="MenuBar" parent="RootLayout" unique_id=90299002]
+layout_mode = 2
+
+[node name="File" type="PopupMenu" parent="RootLayout/MenuBar" unique_id=440638818]
+
+[node name="Layout" type="HBoxContainer" parent="RootLayout" unique_id=2145120633]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TOCPanel" type="PanelContainer" parent="RootLayout/Layout" unique_id=827362302]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_side")
+
+[node name="TOCList" type="VBoxContainer" parent="RootLayout/Layout/TOCPanel" unique_id=921926773]
+layout_mode = 2
+
+[node name="TOCTitle" type="Label" parent="RootLayout/Layout/TOCPanel/TOCList" unique_id=1638773145]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
+text = "Blocks"
+
+[node name="HSeparator" type="HSeparator" parent="RootLayout/Layout/TOCPanel/TOCList" unique_id=1123088013]
+layout_mode = 2
+
+[node name="AliceBtn" type="Button" parent="RootLayout/Layout/TOCPanel/TOCList" unique_id=2077430374]
+layout_mode = 2
+text = "alice"
+flat = true
+alignment = 0
+
+[node name="BobBtn" type="Button" parent="RootLayout/Layout/TOCPanel/TOCList" unique_id=1973578375]
+layout_mode = 2
+text = "bob"
+flat = true
+alignment = 0
+
+[node name="CharlieBtn" type="Button" parent="RootLayout/Layout/TOCPanel/TOCList" unique_id=603677413]
+layout_mode = 2
+text = "charlie"
+flat = true
+alignment = 0
+
+[node name="ContentColumn" type="VBoxContainer" parent="RootLayout/Layout" unique_id=1567976172]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LogPanel" type="PanelContainer" parent="RootLayout/Layout/ContentColumn" unique_id=766587587]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_center")
+
+[node name="LogText" type="RichTextLabel" parent="RootLayout/Layout/ContentColumn/LogPanel" unique_id=747000581]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 2
+bbcode_enabled = true
+scroll_following = true
+selection_enabled = true
+
+[node name="ResponsePanel" type="PanelContainer" parent="RootLayout/Layout/ContentColumn" unique_id=497145674]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_response")
+
+[node name="ResponseContent" type="VBoxContainer" parent="RootLayout/Layout/ContentColumn/ResponsePanel" unique_id=539106101]
+layout_mode = 2
+
+[node name="NoFileLabel" type="Label" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent" unique_id=2005796640]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+text = "Please load a Skald file."
+horizontal_alignment = 1
+
+[node name="ContinueLabel" type="Label" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent" unique_id=1941740137]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+text = "Press spacebar to continue"
+horizontal_alignment = 1
+
+[node name="ChoicesContainer" type="VBoxContainer" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent" unique_id=1491719263]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="InputContainer" type="VBoxContainer" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent" unique_id=1839149179]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PromptLabel" type="Label" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent/InputContainer" unique_id=2036087057]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Method input"
+
+[node name="PromptInput" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent/InputContainer" unique_id=1337491765 instance=ExtResource("2_uu6xs")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PromptButton" type="Button" parent="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent/InputContainer" unique_id=1522770722]
+layout_mode = 2
+text = "Send
+"
+
+[node name="StatePanel" type="PanelContainer" parent="RootLayout/Layout" unique_id=1401350972]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_side")
+
+[node name="StateScroll" type="ScrollContainer" parent="RootLayout/Layout/StatePanel" unique_id=2057237326]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="StateList" type="VBoxContainer" parent="RootLayout/Layout/StatePanel/StateScroll" unique_id=1847015236]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StateTitle" type="Label" parent="RootLayout/Layout/StatePanel/StateScroll/StateList" unique_id=1079629619]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
+text = "State"
+
+[node name="HSeparator" type="HSeparator" parent="RootLayout/Layout/StatePanel/StateScroll/StateList" unique_id=1351705468]
+layout_mode = 2
+
+[node name="FileDialog" type="FileDialog" parent="." unique_id=834907768]
+title = "Open a File"
+initial_position = 1
+size = Vector2i(800, 500)
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.ska ; Skald Files")
+
+[connection signal="value_submitted" from="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent/InputContainer/PromptInput" to="." method="_on_prompt_input_value_submitted"]
+[connection signal="pressed" from="RootLayout/Layout/ContentColumn/ResponsePanel/ResponseContent/InputContainer/PromptButton" to="." method="_on_prompt_button_pressed"]
