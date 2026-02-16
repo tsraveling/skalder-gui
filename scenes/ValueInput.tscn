@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://cvlinpt3rk7m2"]
+
+[ext_resource type="Script" path="res://scripts/ValueInput.gd" id="1_vi"]
+
+[node name="ValueInput" type="HBoxContainer"]
+script = ExtResource("1_vi")
+
+[node name="TypeSelect" type="OptionButton" parent="."]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 0)
+
+[node name="TextInput" type="LineEdit" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Enter value..."
+
+[node name="BoolToggle" type="CheckButton" parent="."]
+layout_mode = 2
+visible = false
+text = "True"
