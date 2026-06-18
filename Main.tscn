@@ -3,13 +3,6 @@
 [ext_resource type="Script" uid="uid://dkwboqgvxvdl0" path="res://scripts/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://cvlinpt3rk7m2" path="res://scenes/ValueInput.tscn" id="2_uu6xs"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_side"]
-content_margin_left = 8.0
-content_margin_top = 8.0
-content_margin_right = 8.0
-content_margin_bottom = 8.0
-bg_color = Color(0.12, 0.12, 0.18, 1)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_center"]
 content_margin_left = 12.0
 content_margin_top = 12.0
@@ -51,40 +44,6 @@ layout_mode = 2
 [node name="Layout" type="HBoxContainer" parent="RootLayout" unique_id=2145120633]
 layout_mode = 2
 size_flags_vertical = 3
-
-[node name="TOCPanel" type="PanelContainer" parent="RootLayout/Layout" unique_id=827362302]
-custom_minimum_size = Vector2(150, 0)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_side")
-
-[node name="TOCList" type="VBoxContainer" parent="RootLayout/Layout/TOCPanel" unique_id=921926773]
-layout_mode = 2
-
-[node name="TOCTitle" type="Label" parent="RootLayout/Layout/TOCPanel/TOCList" unique_id=1638773145]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
-text = "Blocks"
-
-[node name="HSeparator" type="HSeparator" parent="RootLayout/Layout/TOCPanel/TOCList" unique_id=1123088013]
-layout_mode = 2
-
-[node name="AliceBtn" type="Button" parent="RootLayout/Layout/TOCPanel/TOCList" unique_id=2077430374]
-layout_mode = 2
-text = "alice"
-flat = true
-alignment = 0
-
-[node name="BobBtn" type="Button" parent="RootLayout/Layout/TOCPanel/TOCList" unique_id=1973578375]
-layout_mode = 2
-text = "bob"
-flat = true
-alignment = 0
-
-[node name="CharlieBtn" type="Button" parent="RootLayout/Layout/TOCPanel/TOCList" unique_id=603677413]
-layout_mode = 2
-text = "charlie"
-flat = true
-alignment = 0
 
 [node name="ContentColumn" type="VBoxContainer" parent="RootLayout/Layout" unique_id=1567976172]
 layout_mode = 2
@@ -148,28 +107,6 @@ layout_mode = 2
 layout_mode = 2
 text = "Send
 "
-
-[node name="StatePanel" type="PanelContainer" parent="RootLayout/Layout" unique_id=1401350972]
-custom_minimum_size = Vector2(300, 0)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_side")
-
-[node name="StateScroll" type="ScrollContainer" parent="RootLayout/Layout/StatePanel" unique_id=2057237326]
-layout_mode = 2
-horizontal_scroll_mode = 0
-
-[node name="StateList" type="VBoxContainer" parent="RootLayout/Layout/StatePanel/StateScroll" unique_id=1847015236]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="StateTitle" type="Label" parent="RootLayout/Layout/StatePanel/StateScroll/StateList" unique_id=1079629619]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
-text = "State"
-
-[node name="HSeparator" type="HSeparator" parent="RootLayout/Layout/StatePanel/StateScroll/StateList" unique_id=1351705468]
-layout_mode = 2
 
 [node name="FileDialog" type="FileDialog" parent="." unique_id=834907768]
 title = "Open a File"

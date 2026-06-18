@@ -4,7 +4,6 @@ extends Control
 @onready var prompt_label: Label = %PromptLabel
 @onready var prompt_input: ValueInputField = %PromptInput
 @onready var log_text: RichTextLabel = %LogText
-@onready var state_list: VBoxContainer = %StateList
 @onready var continue_label: Label = %ContinueLabel
 @onready var choices_container: VBoxContainer = %ChoicesContainer
 @onready var input_container: VBoxContainer = %InputContainer
@@ -20,8 +19,6 @@ ERROR,
 DONE,
 NO_FILE
 }
-
-const VALUE_INPUT_SCENE = preload("res://scenes/ValueInput.tscn")
 
 const SPEAKER_COLORS = [
 	Color("#da70d6"),
@@ -41,10 +38,16 @@ var _current_options: Array = []
 
 # SECTION: SKALD ENGINE INTEGRATION
 
-# TODO: Put Skald here!
-
 func start_module(path: String) -> void:
-	skald_engine.load(path)
+	var codex_path = FileUtil.find_nearest_codex(path)
+	var module_path := path
+	if codex_path != null:
+		skald_engine.setup(codex_path)
+		module_path = FileUtil.relative_to_codex(codex_path, path)
+	else:
+		OS.alert("No .codex file found near:\n" + path, "Codex Not Found")
+
+	skald_engine.load(module_path)
 	var response = skald_engine.start()
 	handle_response(response)
 
@@ -72,35 +75,52 @@ func handle_response(response: Variant):
 			add_attributed_log(content.attribution, content.text)
 		else:
 			add_narrative_log(content.text)
-		if content.options.size() > 0:
-			_current_options = content.options
-			show_choices(content.options)
-		else:
-			show_continue()
-		pass
+		show_continue()
+	elif response is SkaldOptionGroup:
+		var group := response as SkaldOptionGroup
+		_current_options = group.options
+		add_system_log("OPTION GROUP: %d option(s)" % group.count)
+		for i in group.options.size():
+			var opt := group.options[i] as SkaldOption
+			add_system_log("  %d. %s%s" % [i + 1, opt.text, "" if opt.is_available else " (unavailable)"])
+		show_choices(group.options)
+	elif response is SkaldAction:
+		var action := response as SkaldAction
+		var action_string := "ACTION: " + action.method
+		for arg in action.args:
+			action_string += " (" + str(arg) + ")"
+		add_system_log(action_string)
+		show_continue()
+	elif response is SkaldNotification:
+		var note := response as SkaldNotification
+		var note_string := "NOTIFICATION: %s [scope: %s]" % [note.var_name, note.scope]
+		if note.has_value():
+			note_string += " = " + str(note.value)
+		add_system_log(note_string)
+		show_continue()
 	elif response is SkaldQuery:
 		var query := response as SkaldQuery
 		var prompt_string := query_to_string(query)
 		add_system_log(prompt_string)
 		show_input(prompt_string)
-		pass
 	elif response is SkaldExit:
-		var exit := response as SkaldExit
-		add_system_log("MODULE EXIT")
+		var exit_response := response as SkaldExit
+		add_system_log("MODULE EXIT: value = " + str(exit_response.value))
 		show_continue()
-		pass
 	elif response is SkaldGoModule:
 		var go_module := response as SkaldGoModule
-		add_system_log("MODULE GO: " + go_module.module_path)
+		var go_string := "MODULE GO: " + go_module.module_path
+		if go_module.start_tag != "":
+			go_string += " (start tag: " + go_module.start_tag + ")"
+		add_system_log(go_string)
 		show_continue()
-		pass
 	elif response is SkaldError:
 		var error := response as SkaldError
 		add_error_log(error.message)
 		show_continue()
 		pass
 	elif response is SkaldEnd:
-		var end := response as SkaldEnd
+		var _end := response as SkaldEnd
 		show_continue()
 		pass
 
@@ -121,7 +141,7 @@ func _process(_delta: float) -> void:
 	match _expected_response:
 		ExpectedResponse.CONTINUE:
 			if Input.is_action_just_pressed("continue"):
-				var response = skald_engine.act(0)
+				var response = skald_engine.advance()
 				handle_response(response)
 		ExpectedResponse.CHOICE:
 			for i in range(9):
@@ -138,7 +158,6 @@ func _ready() -> void:
 	file_menu.id_pressed.connect(_on_file_menu_pressed)
 	file_dialog.file_selected.connect(_on_file_selected)
 
-	_add_placeholder_state()
 	_add_placeholder_logs()
 
 	# Prompt for file on launch
@@ -221,32 +240,6 @@ func show_input(prompt: String) -> void:
 
 
 
-# -- State panel --
-
-func add_state_entry(key: String, value: Variant) -> void:
-	var row := HBoxContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-	var key_label := Label.new()
-	key_label.text = key
-	key_label.custom_minimum_size.x = 100
-	key_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
-	row.add_child(key_label)
-
-	var vi: ValueInputField = VALUE_INPUT_SCENE.instantiate()
-	vi.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(vi)
-
-	state_list.add_child(row)
-	vi.set_value(value)
-
-
-func clear_state() -> void:
-	var children := state_list.get_children()
-	for i in range(2, children.size()):
-		children[i].queue_free()
-
-
 # -- Speaker colors --
 
 func _get_speaker_color(speaker: String) -> Color:
@@ -257,14 +250,6 @@ func _get_speaker_color(speaker: String) -> Color:
 
 
 # -- Placeholders --
-
-func _add_placeholder_state() -> void:
-	add_state_entry("player_name", "Alice")
-	add_state_entry("health", 100)
-	add_state_entry("speed", 1.5)
-	add_state_entry("is_alive", true)
-	add_state_entry("quest_item", null)
-
 
 func _add_placeholder_logs() -> void:
 	add_system_log("Module loaded: intro.ska")
