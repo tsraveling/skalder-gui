@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 0.2.0 - 2026-06-18
+#### Features
+- updates to Skald 0.6 - (cd1303d) - Tim Raveling
+#### Documentation
+- added KANBAN - (db3a80f) - Tim Raveling
+
+- - -
+
 ## 0.1.0 - 2026-02-16
 #### Features
 - initial skald godot integration working (#1) - (392adeb) - Tim Raveling
