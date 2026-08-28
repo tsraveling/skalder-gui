@@ -51,23 +51,20 @@ func start_module(path: String) -> void:
 	var response = skald_engine.start()
 	handle_response(response)
 
-func query_to_string(q: SkaldQuery) -> String:
-	var ret = "QUERY: " if q.expects_response else "CALL: "
-	ret += q.method
-	for arg in q.args:
-		ret += " (" + arg + ")"
+func call_to_string(prefix: String, method: String, args: Array) -> String:
+	var ret = prefix + method
+	for arg in args:
+		ret += " (" + str(arg) + ")"
 	return ret
 
 func handle_response(response: Variant):
 
-	# Handle flat method calls
-	# Note: The reason we still answer a normal method call like this is that we can optionally make
-	# it blocking. For instance we could e.g. handle a :play_animation method and not continue the text
-	# until the animation finishes playing.
-	while response is SkaldQuery && !(response as SkaldQuery).expects_response:
-		# This is how you answer a method call that does not expect a response:
-		add_system_log(query_to_string(response))
-		response = skald_engine.answer(null)
+	# Handle flat method calls (SkaldAction: fire-and-forget, no answer expected).
+	# Note: We auto-advance here, but this could be made blocking. For instance we could e.g. handle
+	# a :play_animation method and not continue the text until the animation finishes playing.
+	while response is SkaldAction:
+		add_system_log(call_to_string("ACTION: ", response.method, response.args))
+		response = skald_engine.advance()
 
 	if response is SkaldContent:
 		var content := response as SkaldContent
@@ -84,23 +81,16 @@ func handle_response(response: Variant):
 			var opt := group.options[i] as SkaldOption
 			add_system_log("  %d. %s%s" % [i + 1, opt.text, "" if opt.is_available else " (unavailable)"])
 		show_choices(group.options)
-	elif response is SkaldAction:
-		var action := response as SkaldAction
-		var action_string := "ACTION: " + action.method
-		for arg in action.args:
-			action_string += " (" + str(arg) + ")"
-		add_system_log(action_string)
-		show_continue()
 	elif response is SkaldNotification:
 		var note := response as SkaldNotification
-		var note_string := "NOTIFICATION: %s [scope: %s]" % [note.var_name, note.scope]
+		var note_string := "NOTIFICATION: %s [%s, scope: %s]" % [note.var_name, note.mut_type, note.scope]
 		if note.has_value():
 			note_string += " = " + str(note.value)
 		add_system_log(note_string)
 		show_continue()
 	elif response is SkaldQuery:
 		var query := response as SkaldQuery
-		var prompt_string := query_to_string(query)
+		var prompt_string := call_to_string("QUERY: ", query.method, query.args)
 		add_system_log(prompt_string)
 		show_input(prompt_string)
 	elif response is SkaldExit:
@@ -125,7 +115,7 @@ func handle_response(response: Variant):
 		pass
 
 func handle_answer(val: Variant):
-	add_system_log("ANSWERED: " + val)
+	add_system_log("ANSWERED: " + str(val))
 	handle_response(skald_engine.answer(val))
 
 # SECTION: UI AND INFRASTRUCTURE
@@ -159,6 +149,7 @@ func _ready() -> void:
 	file_dialog.file_selected.connect(_on_file_selected)
 
 	_add_placeholder_logs()
+	add_system_log("Skald engine version: " + skald_engine.get_skald_version())
 
 	# Prompt for file on launch
 	file_dialog.popup_centered()
