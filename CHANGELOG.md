@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 0.2.1 - 2026-08-28
+#### Bug Fixes
+- skald version bump and Godot to 4.7 - (1612f85) - Tim Raveling
+
+- - -
+
 ## 0.2.0 - 2026-06-18
 #### Features
 - updates to Skald 0.6 - (cd1303d) - Tim Raveling
